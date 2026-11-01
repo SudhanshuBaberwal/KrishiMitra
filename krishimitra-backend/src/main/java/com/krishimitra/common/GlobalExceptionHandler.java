@@ -9,6 +9,8 @@ import com.krishimitra.crop.exception.FarmerProfileNotFoundException;
 
 import com.krishimitra.soil.exception.SoilFarmerProfileNotFoundException;
 import com.krishimitra.soil.exception.SoilRecordNotFoundException;
+import com.krishimitra.weather.exception.WeatherDataException;
+import com.krishimitra.weather.exception.WeatherLocationNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +182,30 @@ public class GlobalExceptionHandler {
                         Map.of("error", "FARMER_PROFILE_NOT_FOUND")
                 )
         );
+    }
+
+    @ExceptionHandler(WeatherLocationNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleWeatherLocationNotFound(
+            WeatherLocationNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(WeatherDataException.class)
+    public ResponseEntity<ApiResponse<Object>> handleWeatherDataException(
+            WeatherDataException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(
+            IllegalArgumentException ex
+    ) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage(), null));
     }
 
     // Common response builder
