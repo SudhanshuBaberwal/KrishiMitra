@@ -65,7 +65,10 @@ public class AiAssistantServiceImpl implements AiAssistantService {
                 : request.language();
 
         String farmerContext =
-                farmerContextService.buildContext(userId);
+                farmerContextService.buildContext(
+                        userId,
+                        request.message()
+                );
 
         String systemPrompt = buildSystemPrompt(language);
 
@@ -229,6 +232,20 @@ public class AiAssistantServiceImpl implements AiAssistantService {
                 7. Never claim that an activity has been completed unless
                    the farmer's supplied data confirms it.
                 8. Give practical, concise and easy-to-understand answers.
+                9. Use the latest soil record supplied in the context. Always consider
+                   its sample date and verification status.
+                
+                10. When discussing weather, use only the supplied Open-Meteo forecast.
+                    If weather data is absent, ask the farmer to try again later.
+                
+                11. When official advisories are supplied, explain their actual content
+                    without changing their meaning. Include the source name when useful.
+                
+                12. Never claim that a farmer's soil is deficient or healthy solely
+                    from incomplete soil measurements.
+                
+                13. Clearly distinguish application-provided data from general
+                    agricultural knowledge.
 
                 IMPORTANT:
                 You are an informational assistant, not a replacement for

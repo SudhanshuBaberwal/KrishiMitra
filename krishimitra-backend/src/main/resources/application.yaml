@@ -19,6 +19,10 @@ spring:
         api-key: ${GEMINI_API_KEY}
         chat:
           model: gemini-2.5-flash
+#    groq:
+#      api-key: ${GROQ_API_KEY}
+#      base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
+#      model: ${GROQ_MODEL:openai/gpt-oss-120b}
 
 management:
   endpoints:
@@ -37,3 +41,18 @@ app:
     data-gov-api-key: ${DATA_GOV_IN_API_KEY}
   advisory:
     ingestion-key: ${ADVISORY_INGEST_KEY}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: true
+
+  show-actuator: false
