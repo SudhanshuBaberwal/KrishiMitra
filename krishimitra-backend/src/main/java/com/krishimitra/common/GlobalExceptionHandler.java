@@ -7,6 +7,8 @@ import com.krishimitra.crop.exception.CropNotFoundException;
 import com.krishimitra.crop.exception.DuplicateFarmerCropException;
 import com.krishimitra.crop.exception.FarmerProfileNotFoundException;
 
+import com.krishimitra.soil.exception.SoilFarmerProfileNotFoundException;
+import com.krishimitra.soil.exception.SoilRecordNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,6 +155,30 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Something went wrong. Please try again later.",
                 new ErrorResponse("INTERNAL_SERVER_ERROR", Map.of())
+        );
+    }
+
+    @ExceptionHandler(SoilRecordNotFoundException.class)
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleSoilRecordNotFound(
+            SoilRecordNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ApiResponse.error(
+                        ex.getMessage(),
+                        Map.of("error", "SOIL_RECORD_NOT_FOUND")
+                )
+        );
+    }
+
+    @ExceptionHandler(SoilFarmerProfileNotFoundException.class)
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleSoilFarmerNotFound(
+            SoilFarmerProfileNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ApiResponse.error(
+                        ex.getMessage(),
+                        Map.of("error", "FARMER_PROFILE_NOT_FOUND")
+                )
         );
     }
 
