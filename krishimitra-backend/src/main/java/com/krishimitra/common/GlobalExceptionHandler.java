@@ -1,6 +1,8 @@
 
 package com.krishimitra.common;
 
+import com.krishimitra.advisory.exception.AdvisoryNotFoundException;
+import com.krishimitra.advisory.exception.InvalidAdvisoryAccessException;
 import com.krishimitra.auth.exception.EmailAlreadyExistsException;
 import com.krishimitra.common.response.ErrorResponse;
 import com.krishimitra.crop.exception.CropNotFoundException;
@@ -200,10 +202,26 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage(), null));
     }
 
+    @ExceptionHandler(AdvisoryNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAdvisoryNotFound(
+            AdvisoryNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(InvalidAdvisoryAccessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidAdvisoryAccess(
+            InvalidAdvisoryAccessException ex) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(
-            IllegalArgumentException ex
-    ) {
+            IllegalArgumentException ex) {
+
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error(ex.getMessage(), null));
     }
