@@ -9,6 +9,8 @@ import com.krishimitra.crop.exception.CropNotFoundException;
 import com.krishimitra.crop.exception.DuplicateFarmerCropException;
 import com.krishimitra.crop.exception.FarmerProfileNotFoundException;
 
+import com.krishimitra.schedule.exception.ScheduleCropNotFoundException;
+import com.krishimitra.schedule.exception.ScheduleNotFoundException;
 import com.krishimitra.soil.exception.SoilFarmerProfileNotFoundException;
 import com.krishimitra.soil.exception.SoilRecordNotFoundException;
 import com.krishimitra.weather.exception.WeatherDataException;
@@ -223,6 +225,23 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex) {
 
         return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(ScheduleNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleScheduleNotFound(
+            ScheduleNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ScheduleCropNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleScheduleCropNotFound(
+            ScheduleCropNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ex.getMessage(), null));
     }
 
