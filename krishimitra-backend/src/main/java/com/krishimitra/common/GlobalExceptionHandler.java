@@ -3,6 +3,8 @@ package com.krishimitra.common;
 
 import com.krishimitra.advisory.exception.AdvisoryNotFoundException;
 import com.krishimitra.advisory.exception.InvalidAdvisoryAccessException;
+import com.krishimitra.ai.exception.AiConversationNotFoundException;
+import com.krishimitra.ai.exception.AiServiceException;
 import com.krishimitra.auth.exception.EmailAlreadyExistsException;
 import com.krishimitra.common.response.ErrorResponse;
 import com.krishimitra.crop.exception.CropNotFoundException;
@@ -242,6 +244,23 @@ public class GlobalExceptionHandler {
             ScheduleCropNotFoundException ex
     ) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(AiConversationNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAiConversationNotFound(
+            AiConversationNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(AiServiceException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAiServiceException(
+            AiServiceException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(ApiResponse.error(ex.getMessage(), null));
     }
 
