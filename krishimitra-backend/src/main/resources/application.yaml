@@ -20,10 +20,6 @@ spring:
         api-key: ${GEMINI_API_KEY}
         chat:
           model: gemini-2.5-flash
-#    groq:
-#      api-key: ${GROQ_API_KEY}
-#      base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
-#      model: ${GROQ_MODEL:openai/gpt-oss-120b}
 
 management:
   endpoints:
@@ -32,7 +28,7 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: always
+      show-details: never
 
 app:
   jwt:
