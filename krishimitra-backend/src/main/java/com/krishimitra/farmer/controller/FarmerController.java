@@ -2,7 +2,7 @@
 package com.krishimitra.farmer.controller;
 
 import com.krishimitra.auth.security.UserPrincipal;
-import com.krishimitra.common.response.ApiResponse;
+import com.krishimitra.common.ApiResponse;
 import com.krishimitra.farmer.dto.request.CreateFarmerRequest;
 import com.krishimitra.farmer.dto.request.UpdateFarmerRequest;
 import com.krishimitra.farmer.dto.response.FarmerResponse;

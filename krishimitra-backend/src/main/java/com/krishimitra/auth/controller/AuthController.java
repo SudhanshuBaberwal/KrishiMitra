@@ -7,7 +7,7 @@ import com.krishimitra.auth.dto.response.MessageResponse;
 import com.krishimitra.auth.dto.response.UserResponse;
 import com.krishimitra.auth.security.UserPrincipal;
 import com.krishimitra.auth.service.AuthService;
-import com.krishimitra.common.response.ApiResponse;
+import com.krishimitra.common.ApiResponse;
 
 import jakarta.validation.Valid;
 

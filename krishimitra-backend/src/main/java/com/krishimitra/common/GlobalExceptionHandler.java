@@ -1,8 +1,14 @@
+
 package com.krishimitra.common;
 
 import com.krishimitra.auth.exception.EmailAlreadyExistsException;
-import com.krishimitra.common.response.ApiResponse;
 import com.krishimitra.common.response.ErrorResponse;
+import com.krishimitra.crop.exception.CropNotFoundException;
+import com.krishimitra.crop.exception.DuplicateFarmerCropException;
+import com.krishimitra.crop.exception.FarmerProfileNotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -19,12 +25,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Validation errors
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // 1. Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(
             MethodArgumentNotValidException exception
     ) {
-
         Map<String, String> fieldErrors = new LinkedHashMap<>();
 
         exception.getBindingResult().getFieldErrors().forEach(error ->
@@ -35,7 +43,7 @@ public class GlobalExceptionHandler {
         );
 
         ErrorResponse errorResponse = new ErrorResponse(
-                "Validation failed",
+                "VALIDATION_FAILED",
                 fieldErrors
         );
 
@@ -46,93 +54,105 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // Duplicate email
+    // 2. Duplicate email
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateEmail(
             EmailAlreadyExistsException exception
     ) {
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                "EMAIL_ALREADY_EXISTS",
-                Map.of()
-        );
-
         return buildResponse(
                 HttpStatus.CONFLICT,
                 exception.getMessage(),
-                errorResponse
+                new ErrorResponse("EMAIL_ALREADY_EXISTS", Map.of())
         );
     }
 
-    // MongoDB unique index conflict
+    // 3. Farmer profile not found
+    @ExceptionHandler(FarmerProfileNotFoundException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleFarmerProfileNotFound(
+            FarmerProfileNotFoundException exception
+    ) {
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                new ErrorResponse("FARMER_PROFILE_NOT_FOUND", Map.of())
+        );
+    }
+
+    // 4. Crop not found
+    @ExceptionHandler(CropNotFoundException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleCropNotFound(
+            CropNotFoundException exception
+    ) {
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                new ErrorResponse("CROP_NOT_FOUND", Map.of())
+        );
+    }
+
+    // 5. Duplicate crop
+    @ExceptionHandler(DuplicateFarmerCropException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateCrop(
+            DuplicateFarmerCropException exception
+    ) {
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                new ErrorResponse("DUPLICATE_CROP", Map.of())
+        );
+    }
+
+    // 6. MongoDB unique index conflict
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateKey(
             DuplicateKeyException exception
     ) {
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                "DUPLICATE_RESOURCE",
-                Map.of()
-        );
+        log.warn("MongoDB duplicate key conflict", exception);
 
         return buildResponse(
                 HttpStatus.CONFLICT,
                 "A record with the same unique value already exists",
-                errorResponse
+                new ErrorResponse("DUPLICATE_RESOURCE", Map.of())
         );
     }
 
-    // Invalid login credentials or authentication failure
+    // 7. Authentication failure
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
             AuthenticationException exception
     ) {
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                "INVALID_CREDENTIALS",
-                Map.of()
-        );
-
         return buildResponse(
                 HttpStatus.UNAUTHORIZED,
                 "Invalid email or password",
-                errorResponse
+                new ErrorResponse("INVALID_CREDENTIALS", Map.of())
         );
     }
 
-    // Invalid JSON request body
+    // 8. Invalid JSON request body
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleInvalidRequestBody(
             HttpMessageNotReadableException exception
     ) {
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                "INVALID_REQUEST_BODY",
-                Map.of()
-        );
+        log.warn("Invalid request body: {}", exception.getMessage());
 
         return buildResponse(
                 HttpStatus.BAD_REQUEST,
                 "Request body is missing or invalid",
-                errorResponse
+                new ErrorResponse("INVALID_REQUEST_BODY", Map.of())
         );
     }
 
-    // Fallback for unexpected exceptions
+    // 9. Fallback for unexpected exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleGeneralException(
             Exception exception
     ) {
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                "INTERNAL_SERVER_ERROR",
-                Map.of()
-        );
+        log.error("Unhandled API exception", exception);
 
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Something went wrong. Please try again later.",
-                errorResponse
+                new ErrorResponse("INTERNAL_SERVER_ERROR", Map.of())
         );
     }
 
@@ -142,7 +162,6 @@ public class GlobalExceptionHandler {
             String message,
             ErrorResponse errorResponse
     ) {
-
         return ResponseEntity
                 .status(status)
                 .body(ApiResponse.error(message, errorResponse));

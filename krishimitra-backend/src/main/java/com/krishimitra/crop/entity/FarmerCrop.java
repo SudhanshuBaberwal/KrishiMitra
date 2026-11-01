@@ -9,11 +9,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-@Document(collection = "farmer_crops")
 @Data
+@Document(collection = "farmer_crops")
 public class FarmerCrop {
 
     @Id
@@ -26,31 +26,20 @@ public class FarmerCrop {
     private String userId;
 
     private String cropCode;
-
     private String cropName;
-
     private String variety;
 
     private CropSeason season;
-
     private LocalDate sowingDate;
-
     private GrowthStage growthStage;
 
     private Double area;
-
     private AreaUnit areaUnit;
 
     private LocalDate expectedHarvestDate;
 
     private boolean active = true;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    public FarmerCrop() {
-    }
-
-
+    private Instant createdAt;
+    private Instant updatedAt;
 }

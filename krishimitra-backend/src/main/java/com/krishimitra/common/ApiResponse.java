@@ -1,4 +1,4 @@
-package com.krishimitra.common.response;
+package com.krishimitra.common;
 
 import java.time.Instant;
 

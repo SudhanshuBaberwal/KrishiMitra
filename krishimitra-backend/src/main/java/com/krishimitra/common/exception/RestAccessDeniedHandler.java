@@ -1,7 +1,7 @@
 package com.krishimitra.common.exception;
 
 import tools.jackson.databind.ObjectMapper;
-import com.krishimitra.common.response.ApiResponse;
+import com.krishimitra.common.ApiResponse;
 import com.krishimitra.common.response.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
