@@ -1,0 +1,13 @@
+package com.krishimitra;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class KrishimitraBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

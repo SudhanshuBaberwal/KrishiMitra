@@ -1,0 +1,35 @@
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: krishimitra-backend
+
+  mongodb:
+    uri: ${MONGODB_URI}
+    database: krishimitra
+
+  data:
+    mongodb:
+      auto-index-creation: true
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          model: gemini-2.5-flash
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 86400000
