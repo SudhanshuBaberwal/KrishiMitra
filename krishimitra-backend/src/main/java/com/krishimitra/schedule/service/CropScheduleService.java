@@ -1,3 +1,4 @@
+
 package com.krishimitra.schedule.service;
 
 import com.krishimitra.schedule.dto.request.CreateScheduleRequest;
@@ -25,6 +26,11 @@ public interface CropScheduleService {
     );
 
     List<CropScheduleResponse> getUpcomingSchedules(String userId);
+
+    List<CropScheduleResponse> getSchedulesByCropId(
+            String cropId,
+            String userId
+    );
 
     CropScheduleResponse getScheduleById(String id, String userId);
 

@@ -1,3 +1,4 @@
+
 package com.krishimitra.schedule.service;
 
 import com.krishimitra.crop.entity.FarmerCrop;
@@ -15,10 +16,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class CropScheduleServiceImpl implements CropScheduleService {
+
+    private static final ZoneId INDIA_ZONE =
+            ZoneId.of("Asia/Kolkata");
 
     private final CropScheduleRepository scheduleRepository;
     private final FarmerCropRepository farmerCropRepository;
@@ -37,12 +42,7 @@ public class CropScheduleServiceImpl implements CropScheduleService {
             CreateScheduleRequest request,
             String userId
     ) {
-        FarmerCrop crop = farmerCropRepository
-                .findByIdAndUserId(cropId, userId)
-                .filter(FarmerCrop::isActive)
-                .orElseThrow(() -> new ScheduleCropNotFoundException(
-                        "Active crop not found for this farmer"
-                ));
+        FarmerCrop crop = findActiveCrop(cropId, userId);
 
         CropSchedule schedule = new CropSchedule();
 
@@ -86,38 +86,65 @@ public class CropScheduleServiceImpl implements CropScheduleService {
             );
         }
 
-        List<CropSchedule> schedules =
-                scheduleRepository.findByUserIdAndActiveTrueOrderByScheduledDateAsc(
-                        userId
-                );
+        List<CropSchedule> schedules;
+
+        if (fromDate != null && status != null) {
+            schedules = scheduleRepository
+                    .findByUserIdAndActiveTrueAndStatusAndScheduledDateBetweenOrderByScheduledDateAsc(
+                            userId, status, fromDate, toDate
+                    );
+        } else if (fromDate != null) {
+            schedules = scheduleRepository
+                    .findByUserIdAndActiveTrueAndScheduledDateBetweenOrderByScheduledDateAsc(
+                            userId, fromDate, toDate
+                    );
+        } else if (status != null) {
+            schedules = scheduleRepository
+                    .findByUserIdAndActiveTrueAndStatusOrderByScheduledDateAsc(
+                            userId, status
+                    );
+        } else {
+            schedules = scheduleRepository
+                    .findByUserIdAndActiveTrueOrderByScheduledDateAsc(
+                            userId
+                    );
+        }
 
         return schedules.stream()
-                .filter(schedule ->
-                        status == null || schedule.getStatus() == status
-                )
-                .filter(schedule ->
-                        fromDate == null ||
-                                (!schedule.getScheduledDate().isBefore(fromDate)
-                                        && !schedule.getScheduledDate().isAfter(toDate))
-                )
                 .map(this::toResponse)
                 .toList();
     }
 
     @Override
-    public List<CropScheduleResponse> getUpcomingSchedules(String userId) {
-
-        LocalDate today = LocalDate.now();
+    public List<CropScheduleResponse> getUpcomingSchedules(
+            String userId
+    ) {
+        LocalDate today = LocalDate.now(INDIA_ZONE);
 
         return scheduleRepository
-                .findByUserIdAndActiveTrueAndStatusOrderByScheduledDateAsc(
+                .findByUserIdAndActiveTrueAndStatusAndScheduledDateGreaterThanEqualOrderByScheduledDateAsc(
                         userId,
-                        ScheduleStatus.PENDING
+                        ScheduleStatus.PENDING,
+                        today
                 )
                 .stream()
-                .filter(schedule ->
-                        !schedule.getScheduledDate().isBefore(today)
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<CropScheduleResponse> getSchedulesByCropId(
+            String cropId,
+            String userId
+    ) {
+        findActiveCrop(cropId, userId);
+
+        return scheduleRepository
+                .findByUserIdAndCropIdAndActiveTrueOrderByScheduledDateAsc(
+                        userId,
+                        cropId
                 )
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -157,10 +184,27 @@ public class CropScheduleServiceImpl implements CropScheduleService {
     ) {
         CropSchedule schedule = findSchedule(id, userId);
 
-        schedule.setStatus(request.status());
+        ScheduleStatus currentStatus = schedule.getStatus();
+        ScheduleStatus newStatus = request.status();
 
-        if (request.status() == ScheduleStatus.COMPLETED) {
-            schedule.setCompletedDate(LocalDate.now());
+        // Repeating the same status is allowed.
+        if (currentStatus == newStatus) {
+            return toResponse(schedule);
+        }
+
+        // Completed and skipped schedules are terminal.
+        if (currentStatus != ScheduleStatus.PENDING) {
+            throw new IllegalArgumentException(
+                    "Completed or skipped schedules cannot be changed"
+            );
+        }
+
+        schedule.setStatus(newStatus);
+
+        if (newStatus == ScheduleStatus.COMPLETED) {
+            schedule.setCompletedDate(
+                    LocalDate.now(INDIA_ZONE)
+            );
         } else {
             schedule.setCompletedDate(null);
         }
@@ -171,8 +215,10 @@ public class CropScheduleServiceImpl implements CropScheduleService {
     }
 
     @Override
-    public void deleteSchedule(String id, String userId) {
-
+    public void deleteSchedule(
+            String id,
+            String userId
+    ) {
         CropSchedule schedule = findSchedule(id, userId);
 
         schedule.setActive(false);
@@ -181,16 +227,36 @@ public class CropScheduleServiceImpl implements CropScheduleService {
         scheduleRepository.save(schedule);
     }
 
-    private CropSchedule findSchedule(String id, String userId) {
-        return scheduleRepository
-                .findByIdAndUserIdAndActiveTrue(id, userId)
-                .orElseThrow(() -> new ScheduleNotFoundException(
-                        "Schedule not found"
-                ));
+    private FarmerCrop findActiveCrop(
+            String cropId,
+            String userId
+    ) {
+        return farmerCropRepository
+                .findByIdAndUserId(cropId, userId)
+                .filter(FarmerCrop::isActive)
+                .orElseThrow(() ->
+                        new ScheduleCropNotFoundException(
+                                "Active crop not found for this farmer"
+                        )
+                );
     }
 
-    private CropScheduleResponse toResponse(CropSchedule schedule) {
+    private CropSchedule findSchedule(
+            String id,
+            String userId
+    ) {
+        return scheduleRepository
+                .findByIdAndUserIdAndActiveTrue(id, userId)
+                .orElseThrow(() ->
+                        new ScheduleNotFoundException(
+                                "Schedule not found"
+                        )
+                );
+    }
 
+    private CropScheduleResponse toResponse(
+            CropSchedule schedule
+    ) {
         return new CropScheduleResponse(
                 schedule.getId(),
                 schedule.getFarmerId(),

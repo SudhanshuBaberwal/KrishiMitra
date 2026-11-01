@@ -1,3 +1,4 @@
+
 package com.krishimitra.schedule.controller;
 
 import com.krishimitra.auth.security.UserPrincipal;
@@ -23,7 +24,9 @@ public class CropScheduleController {
 
     private final CropScheduleService scheduleService;
 
-    public CropScheduleController(CropScheduleService scheduleService) {
+    public CropScheduleController(
+            CropScheduleService scheduleService
+    ) {
         this.scheduleService = scheduleService;
     }
 
@@ -33,11 +36,12 @@ public class CropScheduleController {
             @Valid @RequestBody CreateScheduleRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        CropScheduleResponse response = scheduleService.createSchedule(
-                cropId,
-                request,
-                principal.getId()
-        );
+        CropScheduleResponse response =
+                scheduleService.createSchedule(
+                        cropId,
+                        request,
+                        principal.getId()
+                );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
@@ -74,11 +78,32 @@ public class CropScheduleController {
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         List<CropScheduleResponse> response =
-                scheduleService.getUpcomingSchedules(principal.getId());
+                scheduleService.getUpcomingSchedules(
+                        principal.getId()
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Upcoming crop schedules fetched successfully",
+                        response
+                )
+        );
+    }
+
+    @GetMapping("/crops/{cropId}/schedules")
+    public ResponseEntity<ApiResponse<List<CropScheduleResponse>>> getSchedulesByCrop(
+            @PathVariable String cropId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        List<CropScheduleResponse> response =
+                scheduleService.getSchedulesByCropId(
+                        cropId,
+                        principal.getId()
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Crop schedules fetched successfully",
                         response
                 )
         );
@@ -90,10 +115,16 @@ public class CropScheduleController {
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         CropScheduleResponse response =
-                scheduleService.getScheduleById(id, principal.getId());
+                scheduleService.getScheduleById(
+                        id,
+                        principal.getId()
+                );
 
         return ResponseEntity.ok(
-                ApiResponse.success("Schedule fetched successfully", response)
+                ApiResponse.success(
+                        "Schedule fetched successfully",
+                        response
+                )
         );
     }
 
@@ -103,14 +134,18 @@ public class CropScheduleController {
             @Valid @RequestBody UpdateScheduleRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        CropScheduleResponse response = scheduleService.updateSchedule(
-                id,
-                request,
-                principal.getId()
-        );
+        CropScheduleResponse response =
+                scheduleService.updateSchedule(
+                        id,
+                        request,
+                        principal.getId()
+                );
 
         return ResponseEntity.ok(
-                ApiResponse.success("Schedule updated successfully", response)
+                ApiResponse.success(
+                        "Schedule updated successfully",
+                        response
+                )
         );
     }
 
@@ -140,10 +175,16 @@ public class CropScheduleController {
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        scheduleService.deleteSchedule(id, principal.getId());
+        scheduleService.deleteSchedule(
+                id,
+                principal.getId()
+        );
 
         return ResponseEntity.ok(
-                ApiResponse.success("Schedule deleted successfully", null)
+                ApiResponse.success(
+                        "Schedule deleted successfully",
+                        null
+                )
         );
     }
 }

@@ -1,3 +1,4 @@
+
 package com.krishimitra.schedule.repository;
 
 import com.krishimitra.schedule.entity.CropSchedule;
@@ -36,6 +37,12 @@ public interface CropScheduleRepository
     List<CropSchedule> findByUserIdAndCropIdAndActiveTrueOrderByScheduledDateAsc(
             String userId,
             String cropId
+    );
+
+    List<CropSchedule> findByUserIdAndActiveTrueAndStatusAndScheduledDateGreaterThanEqualOrderByScheduledDateAsc(
+            String userId,
+            ScheduleStatus status,
+            LocalDate date
     );
 
     Optional<CropSchedule> findByIdAndUserIdAndActiveTrue(
