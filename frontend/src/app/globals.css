@@ -1,0 +1,77 @@
+
+@import "tailwindcss";
+
+:root {
+  --background: #f7f8f3;
+  --foreground: #17251b;
+  --surface: #ffffff;
+  --surface-muted: #f0f3eb;
+  --border: #e7ebdf;
+  --muted: #758174;
+  --primary: #237a45;
+  --primary-dark: #175b32;
+  --primary-soft: #e8f4e9;
+  --accent: #e9a83c;
+}
+
+.dark {
+  --background: #101812;
+  --foreground: #edf4eb;
+  --surface: #19241c;
+  --surface-muted: #222f25;
+  --border: #2c3b30;
+  --muted: #a0ad9f;
+  --primary: #65bd7c;
+  --primary-dark: #8bd49b;
+  --primary-soft: #203b29;
+  --accent: #f0bc60;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.dashboard-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.muted-text {
+  color: var(--muted);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 20px;
+}
