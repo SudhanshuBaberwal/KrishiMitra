@@ -16,12 +16,13 @@ import {
   Leaf,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navigation = [
   { label: "Overview", icon: LayoutDashboard, href: "/" },
-  { label: "My Crops", icon: Sprout, href: "#crops" },
+  { label: "My Crops", icon: Sprout, href: "/crops" },
   { label: "Soil Health", icon: Droplets, href: "#soil" },
-  { label: "Weather", icon: CloudSun, href: "#weather" },
+  { label: "Weather", icon: CloudSun, href: "/weather" },
   { label: "Market Prices", icon: TrendingUp, href: "#market" },
   { label: "Advisories", icon: BookOpen, href: "#advisories" },
   { label: "AI Assistant", icon: Bot, href: "#assistant" },
@@ -34,6 +35,8 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
+  const pathname = usePathname();
+
   return (
     <>
       {open && (
@@ -54,6 +57,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)] text-white">
               <Leaf size={23} />
             </div>
+
             <div>
               <h1 className="text-xl font-bold tracking-tight">
                 Krishi<span className="text-[var(--primary)]">Mitra</span>
@@ -79,12 +83,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </p>
 
           <nav className="space-y-1">
-            {navigation.map((item, index) => {
+            {navigation.map((item) => {
               const Icon = item.icon;
-              const active = index === 0;
+              const active = pathname === item.href;
 
               return (
-                <a
+                <Link
                   key={item.label}
                   href={item.href}
                   onClick={onClose}
@@ -96,12 +100,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 >
                   <Icon size={18} strokeWidth={1.8} />
                   {item.label}
+
                   {item.label === "AI Assistant" && (
                     <span className="ml-auto rounded-md bg-[var(--primary-soft)] px-2 py-0.5 text-[9px] font-bold text-[var(--primary)]">
                       AI
                     </span>
                   )}
-                </a>
+                </Link>
               );
             })}
           </nav>
@@ -139,6 +144,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               Make better farming decisions with trusted agricultural insights.
             </p>
           </div>
+
           <p className="mt-4 text-center text-[10px] muted-text">
             KrishiMitra © 2026
           </p>
